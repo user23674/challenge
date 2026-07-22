@@ -26,7 +26,13 @@ void draw_rocket(GameState *gameState) {
     if (gameState->rocket.rotation == "N") {
         mvaddch(gameState->rocket.y + 1,gameState->rocket.x, '^' );
     }
-    else if (gameState->rocket.rotation == "W") {}
+    else if (gameState->rocket.rotation == "W") {
+        mvaddch(gameState->rocket.y, gameState->rocket.x + 1, '<');
+    }
+
+    else if (gameState->rocket.rotation == "E") {
+        mvaddch(gameState->rocket.y, gameState->rocket.x - 1, '>');
+    }
 }
 
 

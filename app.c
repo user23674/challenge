@@ -83,10 +83,6 @@ int main()
         box(stdscr, 0, 0);
         refresh();
 
-
-
-
-
         ch = getch();
         if (ch == KEY_LEFT) 
         {
@@ -109,6 +105,12 @@ int main()
         {
             move_down(&(gs->rocket.x), &(gs->rocket.y), gs->maxX, gs->maxY);
         }
+
+
+
+
+
+
     }
     getch();
     endwin();
