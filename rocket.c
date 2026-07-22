@@ -6,7 +6,7 @@
 void initRocket(GameState *gameState, int starting_pos_x, int starting_pos_y) {
     gameState->rocket.x = starting_pos_x;
     gameState->rocket.y = starting_pos_y;
-    strcpy(gameState->rocket.rotation, "N");
+    gameState->rocket.rotation = 'N';
     gameState->rocket.mHoriz = 0;
     gameState->rocket.mVert = 0;
     mvaddch(gameState->rocket.y,gameState->rocket.x, '*' );
@@ -22,14 +22,15 @@ void initRocket(GameState *gameState, int starting_pos_x, int starting_pos_y) {
 Logic To Draw Rocket Sprite
 */
 void draw_rocket(GameState *gameState) {
+
     mvaddch(gameState->rocket.y,gameState->rocket.x, '*' );
-    if (gameState->rocket.rotation == "N") {
+    if (gameState->rocket.rotation == 'N') {
         mvaddch(gameState->rocket.y + 1,gameState->rocket.x, '^' );
     }
-    else if (gameState->rocket.rotation == "W") {
+    else if (gameState->rocket.rotation == 'W') {
         mvaddch(gameState->rocket.y, gameState->rocket.x + 1, '<');
     }
-    else if (gameState->rocket.rotation == "E") {
+    else if (gameState->rocket.rotation == 'E') {
         mvaddch(gameState->rocket.y, gameState->rocket.x - 1, '>');
     }
 }
