@@ -3,7 +3,7 @@
 
 
 typedef struct GameState GameState;
-
+// need to add thrust and fuel
 struct Rocket {
     char rotation[3];
     int x;
