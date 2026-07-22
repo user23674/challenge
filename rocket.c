@@ -23,6 +23,8 @@ Logic To Draw Rocket Sprite
 */
 void draw_rocket(GameState *gameState) {
 
+
+    attron(COLOR_PAIR(1));
     mvaddch(gameState->rocket.y,gameState->rocket.x, '*' );
     if (gameState->rocket.rotation == 'N') {
         mvaddch(gameState->rocket.y + 1,gameState->rocket.x, '^' );
@@ -33,6 +35,7 @@ void draw_rocket(GameState *gameState) {
     else if (gameState->rocket.rotation == 'E') {
         mvaddch(gameState->rocket.y, gameState->rocket.x - 1, '>');
     }
+    attroff(COLOR_PAIR(1));
 }
 
 
