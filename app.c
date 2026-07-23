@@ -9,12 +9,15 @@
 #include <locale.h>
 #include "rocket.h"
 #include "app.h"
+#include "controls.h"
+
 
 #include <math.h>
 #include <stdio.h>
 #include <ncurses.h>
 #include <stdlib.h>
 #include <stdbool.h>
+#include <sys/time.h>
 
 #define N_STARS 150
 #define WORLD_W 200
@@ -34,6 +37,7 @@ void draw_floor(GameState *gs) {
         if (nextH < currH) mvaddch((currH), x, '/');
         else if (currH > prevH) mvaddch((currH), x, '\\');
         else if (currH == prevH) mvaddch((currH), x, '_');
+        else if (prevH > currH && nextH == currH ) mvaddch((currH), x, '_');
         for (int y = gs->maxY - gs->surface.surfaceLevel[x]; y < gs->maxY; y++) {  mvaddch((y), x, '#');
         prevH = currH;
 }
@@ -74,7 +78,7 @@ void initBackDrop(GameState *gs) {
 
 /*
 Initialises Surface Floor Terrain as sin wave to WORLD_W limit.
-*/
+*/        bool coll;
 void initFloor(GameState *gs) {
     gs->surface.surfaceLevel = malloc(WORLD_W * sizeof(int));
     for (int i = 0; i < WORLD_W; i++)
@@ -121,12 +125,26 @@ void collideDetect(GameState *gs) {
     mvprintw(10, 10, "%d", surfaceY);
     mvprintw(12, 10, "%d", rocketY);
 
+    if (rocketY <= surfaceY) { // touched land
+        int prevY = gs->surface.surfaceLevel[rocketX - 1];
+        int nextY = gs->surface.surfaceLevel[rocketX + 1];
+        if ((nextY == rocketY && prevY > rocketY) || (nextY > rocketY && prevY == rocketY) || (rocketY < surfaceY) )  {  // Is the ground slanted or below?
+            mvprintw(25, 10, "Crashed");
+        } else {mvprintw(25, 10, "Landed"); }
+
+    }
+
     }
 
 
 int main()
 {	
     struct GameState *gs = malloc(sizeof *gs);
+
+    // Timer for game loop
+
+    struct timeval start;
+    struct timeval end;
 
     /* All Config Initialisation */
     initWindow();
@@ -143,13 +161,15 @@ int main()
     draw_rocket(gs);
     draw_backdrop(gs);
 
-    
+    // Initialise the game loop timer
+
+    gettimeofday(&start, NULL);
 
     while (1) {
 
-        
+
+
         int ch; 
-        bool coll;
 
         /* This is so the game adapts to the terminal changing mid game, might remove later?*/
         int maxX, maxY;
@@ -163,7 +183,7 @@ int main()
 
 
         werase(stdscr);
-        mvprintw(10, 10, "☆");
+        //mvprintw(10, 10, "☆");
         
         draw_backdrop(gs);
         draw_floor(gs);
@@ -172,36 +192,25 @@ int main()
         box(stdscr, 0, 0);
         
 
-        refresh();
+        
 
         ch = getch();
-        if (ch == KEY_LEFT) 
-        {
-            move_left(&(gs->rocket.x), &(gs->rocket.y), gs->maxX, gs->maxY);
+        controlRocket(ch, gs);
+        gettimeofday(&end, NULL);
+        double elapsed =  (end.tv_sec - start.tv_sec) + (end.tv_usec - start.tv_usec) / 1000000.0;
+        if (elapsed >= 0.1) {
+            update_rocket(gs, elapsed);
+            start = end;
         }
-
-        else if (ch == KEY_RIGHT) 
-        {
-            move_right(&(gs->rocket.x), &(gs->rocket.y), gs->maxX, gs->maxY);
-        }
-
-        else if (ch == KEY_UP) 
-
-        {
-            move_up(&(gs->rocket.x), &(gs->rocket.y), gs->maxX, gs->maxY);
-            
-        }
-
-        else if (ch == KEY_DOWN) 
-        {
-            move_down(&(gs->rocket.x), &(gs->rocket.y), gs->maxX, gs->maxY);
-        }
+        mvprintw(10, 35, "%f", gs->rocket.rotation);
+        mvprintw(11, 35, "%b", gs->rocket.thrust);
+        mvprintw(12, 35, "%f", gs->rocket.velocityY);
+        mvprintw(13, 35, "%f", gs->rocket.velocityX);
 
 
 
 
-
-
+        refresh();
     }
     getch();
     endwin();
