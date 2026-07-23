@@ -19,7 +19,7 @@ void controlRocket(int inp, GameState *gs) {
     }
     if (inp ==  KEY_UP) {
         *thrust = true;
-        gs->rocket.thrust_time  = 0.15f;
+        gs->rocket.thrust_time  = 0.45f;
     }
     if (inp == KEY_DOWN) {
         gs->rocket.thrust_time = 0.0f;
