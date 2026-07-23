@@ -215,7 +215,26 @@ int main()
             refresh();
             int coll = collideDetect(gs);
             if (coll == 1 || coll == 2) {
-                return 0;
+                // Contact: snap the lander onto the surface so it rests on the ground
+                int sx = (int)gs->rocket.x;
+                gs->rocket.y = gs->maxY - gs->surface.surfaceLevel[sx] - 2;
+                gs->rocket.velocityX = 0;
+                gs->rocket.velocityY = 0;
+
+                werase(stdscr);
+                draw_backdrop(gs);
+                draw_floor(gs);
+                box(stdscr, 0, 0);
+                drawGameBar(gs);
+                draw_rocket(gs);
+
+                if (coll == 2)
+                    mvprintw(gs->maxY / 2, (gs->maxX / 2) - 4, "LANDED!");
+                else
+                    mvprintw(gs->maxY / 2, (gs->maxX / 2) - 4, "CRASHED!");
+
+                refresh();
+                break;   // leave the loop; cleanup runs below
             }
             start = end;
         }
