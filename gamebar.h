@@ -1,5 +1,4 @@
 #ifndef GAMEBAR_H
-#define GAMEBAR_H
 
 #include "rocket.h"   // for GameState
 
