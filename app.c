@@ -193,7 +193,7 @@ int main()
         collideDetect(gs);
         draw_rocket(gs);
         box(stdscr, 0, 0);
-        drawGameBar(gs);   // draw BEFORE getch so the frame is complete (no flicker)
+        drawGameBar(gs); 
 
 
         
@@ -202,18 +202,20 @@ int main()
         controlRocket(ch, gs);
         gettimeofday(&end, NULL);
         double elapsed =  (end.tv_sec - start.tv_sec) + (end.tv_usec - start.tv_usec) / 1000000.0;
-        if (elapsed >= 0.016) {   // ~60 Hz physics (was 10 Hz) -> smooth, responsive motion
+        if (elapsed >= 0.00016) {  // was 0.016
             update_rocket(gs, elapsed);
             start = end;
         }
-        mvprintw(10, 35, "%f", gs->rocket.rotation);
-        mvprintw(11, 35, "%b", gs->rocket.thrust);
-        mvprintw(12, 35, "%f", gs->rocket.velocityY);
-        mvprintw(13, 35, "%f", gs->rocket.velocityX);
+        // mvprintw(10, 35, "%f", gs->rocket.rotation);
+        // mvprintw(11, 35, "%b", gs->rocket.thrust);
+        // mvprintw(12, 35, "%f", gs->rocket.velocityY);
+        // mvprintw(13, 35, "%f", gs->rocket.velocityX);
 
 
         refresh();
     }
+
+
     getch();
     endwin();
 }
