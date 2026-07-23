@@ -121,7 +121,7 @@ void initGameState(GameState *gs, WINDOW *stdscr) {
 /*
 (WIP)Detects if a collision has taken place and if so calculates if its a successful landing
 */
-void collideDetect(GameState *gs) {
+int collideDetect(GameState *gs) {
     int rocketX = gs->rocket.x;
     int rocketY = (gs->maxY - gs->rocket.y)  -  2;
     int surfaceY = gs->surface.surfaceLevel[rocketX];
@@ -132,13 +132,22 @@ void collideDetect(GameState *gs) {
         int prevY = gs->surface.surfaceLevel[rocketX - 1];
         int nextY = gs->surface.surfaceLevel[rocketX + 1];
         if ((nextY == rocketY && prevY > rocketY) || (nextY > rocketY && prevY == rocketY) || (rocketY < surfaceY) )  {  // Is the ground slanted or below?
-            mvprintw(25, 10, "Crashed");
-        } else {mvprintw(25, 10, "Landed"); }
+            // mvprintw(25, 10, "Crashed");
+            return 1;
+        }
+        if (gs->rocket.velocityY >= 0.2 || gs->rocket.velocityX >= 0.2){
+            return 1;
+        }
+
+        if (gs->rocket.rotation >= 95 || gs->rocket.rotation <= 85){
+            return 1;
+        }
+
+        return 2;
+        }
+        else return 0; //mvprintw(25, 10, "Landed");
 
     }
-
-    }
-
 
 int main()
 {	
@@ -190,10 +199,10 @@ int main()
         
         draw_backdrop(gs);
         draw_floor(gs);
-        collideDetect(gs);
-        draw_rocket(gs);
         box(stdscr, 0, 0);
         drawGameBar(gs); 
+        draw_rocket(gs);
+        
 
 
         
@@ -202,9 +211,14 @@ int main()
         controlRocket(ch, gs);
         gettimeofday(&end, NULL);
         double elapsed =  (end.tv_sec - start.tv_sec) + (end.tv_usec - start.tv_usec) / 1000000.0;
-        if (elapsed >= 0.00016) {  // was 0.016
+        if (elapsed >= 0.000016) {  // was 0.016
             update_rocket(gs, elapsed);
             start = end;
+        }
+
+        int coll = collideDetect(gs);
+        if (coll == 1 || coll == 2) {
+            return 0;
         }
         // mvprintw(10, 35, "%f", gs->rocket.rotation);
         // mvprintw(11, 35, "%b", gs->rocket.thrust);
