@@ -1,26 +1,24 @@
 #ifndef GAMEBAR_H
 #define GAMEBAR_H
 
-#include <ncurses.h>
 #include "rocket.h"   // for GameState
 
 /*
-  The game bar is a separate ncurses WINDOW that floats on top of the
-  playfield at the top-middle of the screen and shows live telemetry.
+  The game bar is a telemetry panel drawn at the top-middle of the screen.
 
-  Usage:
-    WINDOW *bar = initGameBar(gs);   // once, after initGameState
-    ...
-    drawGameBar(bar, gs);            // every frame, staged on top of stdscr
-    ...
-    delwin(bar);                     // on shutdown
+  It is drawn directly onto stdscr (not a separate ncurses WINDOW) so it
+  flows through the same single refresh as the rest of the playfield. This
+  avoids the overlapping-window flicker you get when getch() implicitly
+  refreshes stdscr over a floating window.
+
+  Call drawGameBar every frame, BEFORE getch(), so each refresh paints a
+  complete frame that already includes the bar.
 */
 
-// Overlay dimensions (cells). Content lives on rows 1..(GAMEBAR_H-2).
+// Panel size in character cells. Content lives on rows 1..(GAMEBAR_H-2).
 #define GAMEBAR_W 30
 #define GAMEBAR_H 8
 
-WINDOW *initGameBar(GameState *gs);
-void    drawGameBar(WINDOW *bar, GameState *gs);
+void drawGameBar(GameState *gs);
 
 #endif

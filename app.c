@@ -50,6 +50,9 @@ void draw_backdrop(GameState *gs) {
     for (int i = 0; i < N_STARS; i++) {
         int x = gs->backDrop.stars[i].x;
         int y = gs->backDrop.stars[i].y;
+        // Skip stars outside the visible playfield. Writing to the last
+        // column / bottom-right cell makes the terminal scroll -> flashing.
+        if (x < 1 || x >= gs->maxX - 1 || y < 1 || y >= gs->maxY - 1) continue;
         mvprintw(y, x, "☆");
 
     }
@@ -149,7 +152,6 @@ int main()
     /* All Config Initialisation */
     initWindow();
     initGameState(gs, stdscr);
-    WINDOW *gameBar  = initGameBar(gs); // init the gamebar
     initBackDrop(gs);
     initFloor(gs);
     initRocket(gs,(gs->maxX / 2) , ((gs->maxY / 2) - 10)); // this initialises the rocket at the x and y coordinates
@@ -191,7 +193,8 @@ int main()
         collideDetect(gs);
         draw_rocket(gs);
         box(stdscr, 0, 0);
-        
+        drawGameBar(gs);   // draw BEFORE getch so the frame is complete (no flicker)
+
 
         
 
@@ -209,9 +212,7 @@ int main()
         mvprintw(13, 35, "%f", gs->rocket.velocityX);
 
 
-        wnoutrefresh(stdscr);
-        drawGameBar(gameBar, gs);
-        doupdate();
+        refresh();
     }
     getch();
     endwin();

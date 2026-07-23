@@ -1,57 +1,57 @@
 #include "gamebar.h"
 #include "app.h"
+#include <ncurses.h>
 #include <math.h>
 #include <string.h>
 
 /*
-  Create the telemetry overlay window, centred at the top of the screen.
-  Position is refreshed every frame in drawGameBar, so the value passed to
-  newwin here is only the starting spot.
-*/
-WINDOW *initGameBar(GameState *gs) {
-    int x = (gs->maxX - GAMEBAR_W) / 2;
-    if (x < 0) x = 0;
-    return newwin(GAMEBAR_H, GAMEBAR_W, 0, x);
-}
-
-/*
-  Draw one frame of telemetry.
+  Draw the telemetry panel onto stdscr, centred along the top edge.
 
   Velocities are stored in px/s; with 1 px = 10 m they are multiplied by 10
-  here so the bar reads in m/s.  velocityY is positive downward (screen y
-  grows down), so a positive Vy means the lander is descending.
+  here so the bar reads in m/s. velocityY is positive downward (screen y grows
+  down), so a positive Vy means the lander is descending.
 
-  Call this AFTER stdscr has been staged (wnoutrefresh(stdscr)) and let the
-  main loop finish with doupdate() so the bar always sits on top.
+  Draw this BEFORE getch() each frame so the implicit refresh getch performs
+  already contains the bar (that is what prevents the flicker).
 */
-void drawGameBar(WINDOW *bar, GameState *gs) {
+void drawGameBar(GameState *gs) {
     Rocket *r = &gs->rocket;
 
-    // Re-centre at the top each frame so it survives terminal resizes.
-    int x = (gs->maxX - GAMEBAR_W) / 2;
-    if (x < 0) x = 0;
-    mvwin(bar, 0, x);
+    const int w = GAMEBAR_W;
+    const int h = GAMEBAR_H;
 
-    werase(bar);
-    box(bar, 0, 0);
+    // Centre horizontally, pinned to the top. Stay inside the outer box.
+    int x0 = (gs->maxX - w) / 2;
+    if (x0 < 1) x0 = 1;
+    int y0 = 0;
 
-    // Title, centred on the top border.
+    // --- Border ---
+    for (int i = 0; i < w; i++) {
+        mvaddch(y0,         x0 + i,     ACS_HLINE);
+        mvaddch(y0 + h - 1, x0 + i,     ACS_HLINE);
+    }
+    for (int j = 0; j < h; j++) {
+        mvaddch(y0 + j,     x0,         ACS_VLINE);
+        mvaddch(y0 + j,     x0 + w - 1, ACS_VLINE);
+    }
+    mvaddch(y0,         x0,         ACS_ULCORNER);
+    mvaddch(y0,         x0 + w - 1, ACS_URCORNER);
+    mvaddch(y0 + h - 1, x0,         ACS_LLCORNER);
+    mvaddch(y0 + h - 1, x0 + w - 1, ACS_LRCORNER);
+
+    // --- Title on the top border ---
     const char *title = " TELEMETRY ";
-    mvwprintw(bar, 0, (GAMEBAR_W - (int)strlen(title)) / 2, "%s", title);
+    mvprintw(y0, x0 + (w - (int)strlen(title)) / 2, "%s", title);
 
-    // px/s -> m/s
+    // --- Data (px/s -> m/s) ---
     float vx    = r->velocityX * 10.0f;
     float vy    = r->velocityY * 10.0f;
     float speed = sqrtf(vx * vx + vy * vy);
 
-    mvwprintw(bar, 1, 2, "Thrust : %s",          r->thrust ? "ON " : "OFF");
-    mvwprintw(bar, 2, 2, "Vx     : %+6.1f m/s",  vx);
-    mvwprintw(bar, 3, 2, "Vy     : %+6.1f m/s",  vy);   // + = descending
-    mvwprintw(bar, 4, 2, "Speed  : %6.1f m/s",   speed);
-    mvwprintw(bar, 5, 2, "Fuel   : %6.1f",       r->fuel);
-    // Row 6 is intentionally left free for future data
-    // (altitude, rotation, score, landing-status, etc.)
-
-    // Stage this window; the main loop's doupdate() paints it on top.
-    wnoutrefresh(bar);
+    mvprintw(y0 + 1, x0 + 2, "Thrust : %s",         r->thrust ? "ON " : "OFF");
+    mvprintw(y0 + 2, x0 + 2, "Vx     : %+6.1f m/s", vx);
+    mvprintw(y0 + 3, x0 + 2, "Vy     : %+6.1f m/s", vy);   // + = descending
+    mvprintw(y0 + 4, x0 + 2, "Speed  : %6.1f m/s",  speed);
+    mvprintw(y0 + 5, x0 + 2, "Fuel   : %6.1f",      r->fuel);
+    // Row 6 free for future data (altitude, rotation, score, status...)
 }
