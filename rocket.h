@@ -12,6 +12,7 @@ struct Rocket {
     float fuel;
     float velocityX, velocityY;
     float mass;
+    float thrust_time;
 };
 
 typedef struct Rocket Rocket;

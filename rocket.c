@@ -24,6 +24,7 @@ void initRocket(GameState *gameState, int starting_pos_x, int starting_pos_y) {
     gameState->rocket.mass = 10;
     gameState->rocket.thrust = false;
     gameState->rocket.fuel = 100;
+    gameState->rocket.thrust_time = 0.0f;
     mvaddch(gameState->rocket.y,gameState->rocket.x, '*' );
 }
 
@@ -35,6 +36,7 @@ void initRocket(GameState *gameState, int starting_pos_x, int starting_pos_y) {
 //     float fuel;
 //     float velocityX, velocityY;
 //     float mass;
+//     float thrust_timer;
 // };
 
 
@@ -137,8 +139,19 @@ void clamp(GameState *gs, float *x, float *y, int maxX, int maxY) {
 //  \ \             / /                    / \                 
 
 void update_rocket(GameState *gs, float delta_time) {
+
     
     Rocket *r = &gs->rocket;
+
+    r->thrust_time -= delta_time;
+    if (r->thrust_time < 0.0f) r->thrust_time = 0.0f;
+    r->thrust = (r->thrust_time > 0.0f);
+
+    bool engine_on = r->thrust && r->fuel > 0.0f;
+    float throttle = engine_on ? 1.0f : 0.0f;
+
+
+
 
     bool engine_on = r->thrust && r->fuel > 0.0f;
     float throttle = engine_on ? 1.0f : 0.0f;
