@@ -5,10 +5,14 @@
 #include <stdbool.h>
 
 // #define M_PI 3.14159265
-#define GRAV 0.2f
+#define MPX 10.0f
+#define MOONG 1.62f
+#define GRAV (MOONG / MPX)
+#define MAX_THRUST (4.0f * GRAV)
+#define FUEL_BURN_RATE 5.0f
 #define THRUST_SCALE 0.05f
-#define TERMINAL_VELOCITY 5.0f
-#define FUEL_BURN_RATE 2.0f
+#define SAFE_LANDING_VY 0.20f
+
 
 
 void initRocket(GameState *gameState, int starting_pos_x, int starting_pos_y) {
@@ -133,37 +137,28 @@ void clamp(GameState *gs, float *x, float *y, int maxX, int maxY) {
 //  \ \             / /                    / \                 
 
 void update_rocket(GameState *gs, float delta_time) {
-    float angle_rad = gs->rocket.rotation * (M_PI / 180.0f);
     
-    // Use 1.0f when thrust is on, 0.0f when off
-    if gs->rocket.thrust == true
-    
-    float thrust_x = thrust_magnitude * cosf(angle_rad) * THRUST_SCALE;
-    float thrust_y = -thrust_magnitude * sinf(angle_rad) * THRUST_SCALE;
-    
-    float accel_x = thrust_x / gs->rocket.mass;
-    float accel_y = (thrust_y / gs->rocket.mass) + GRAV;
-    
-    gs->rocket.velocityX += accel_x * delta_time;
-    gs->rocket.velocityY += accel_y * delta_time;
-    
-    // Apply terminal velocity
-    float speed = sqrtf(gs->rocket.velocityX * gs->rocket.velocityX + 
-                        gs->rocket.velocityY * gs->rocket.velocityY);
-    if (speed > TERMINAL_VELOCITY) {
-        float scale = TERMINAL_VELOCITY / speed;
-        gs->rocket.velocityX *= scale;
-        gs->rocket.velocityY *= scale;
+    Rocket *r = &gs->rocket;
+
+    bool engine_on = r->thrust && r->fuel > 0.0f;
+    float throttle = engine_on ? 1.0f : 0.0f;
+
+    float angle_rad = r->rotation * (float)(M_PI / 180.0);
+    float thrust_acc = (throttle * MAX_THRUST);
+
+    float accel_x = thrust_acc * cosf(angle_rad);
+    float accel_y = -thrust_acc * sinf(angle_rad) + GRAV;
+
+    r->velocityX += accel_x * delta_time;
+    r->velocityY += accel_y * delta_time;
+    r->x += r->velocityX * delta_time;
+    r->y += r->velocityY * delta_time;
+
+    if (engine_on) {
+        r->fuel -+ FUEL_BURN_RATE * delta_time;
+        if (r->fuel < 0.0f) r->fuel = 0.0f;
     }
-    
-    gs->rocket.x += gs->rocket.velocityX * delta_time;
-    gs->rocket.y += gs->rocket.velocityY * delta_time;
-    
-    // Consume fuel only when thrust is on
-    if (gs->rocket.thrust && gs->rocket.fuel > 0) {
-        gs->rocket.fuel -= FUEL_BURN_RATE * delta_time;
-        if (gs->rocket.fuel < 0) gs->rocket.fuel = 0;
-    }
+
 
     clamp(gs, &(gs->rocket.x), &(gs->rocket.y), gs->maxX, gs->maxY);
 }
