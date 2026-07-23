@@ -8,7 +8,7 @@
 #define MPX 10.0f
 #define MOONG 1.62f
 #define GRAV (MOONG / MPX)
-#define MAX_THRUST (2.5f * GRAV)
+#define MAX_THRUST (3.5f * GRAV)
 #define FUEL_BURN_RATE 5.0f
 #define THRUST_SCALE 0.05f
 #define SAFE_LANDING_VY 0.20f

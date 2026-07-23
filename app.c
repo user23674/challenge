@@ -202,7 +202,7 @@ int main()
         controlRocket(ch, gs);
         gettimeofday(&end, NULL);
         double elapsed =  (end.tv_sec - start.tv_sec) + (end.tv_usec - start.tv_usec) / 1000000.0;
-        if (elapsed >= 0.1) {
+        if (elapsed >= 0.016) {   // ~60 Hz physics (was 10 Hz) -> smooth, responsive motion
             update_rocket(gs, elapsed);
             start = end;
         }
