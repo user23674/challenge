@@ -211,13 +211,16 @@ int main()
         double elapsed =  (end.tv_sec - start.tv_sec) + (end.tv_usec - start.tv_usec) / 1000000.0;
         if (elapsed >= 0.000016) {  // was 0.016
             update_rocket(gs, elapsed);
+            draw_rocket(gs);
+            refresh();
+            int coll = collideDetect(gs);
+            if (coll == 1 || coll == 2) {
+                return 0;
+            }
             start = end;
         }
 
-        int coll = collideDetect(gs);
-        if (coll == 1 || coll == 2) {
-            return 0;
-        }
+        
         // mvprintw(10, 35, "%f", gs->rocket.rotation);
         // mvprintw(11, 35, "%b", gs->rocket.thrust);
         // mvprintw(12, 35, "%f", gs->rocket.velocityY);
