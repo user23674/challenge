@@ -209,9 +209,9 @@ int main()
         mvprintw(13, 35, "%f", gs->rocket.velocityX);
 
 
-        wnoutrefresh(stsc)
+        wnoutrefresh(stdscr);
         drawGameBar(gameBar, gs);
-        refresh();
+        doupdate();
     }
     getch();
     endwin();

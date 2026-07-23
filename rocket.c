@@ -163,7 +163,7 @@ void update_rocket(GameState *gs, float delta_time) {
     r->y += r->velocityY * delta_time;
 
     if (engine_on) {
-        r->fuel -+ FUEL_BURN_RATE * delta_time;
+        r->fuel -= FUEL_BURN_RATE * delta_time;
         if (r->fuel < 0.0f) r->fuel = 0.0f;
     }
 
