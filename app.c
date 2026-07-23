@@ -10,7 +10,7 @@
 #include "rocket.h"
 #include "app.h"
 #include "controls.h"
-
+#include "gamebar.h"
 
 #include <math.h>
 #include <stdio.h>
@@ -78,7 +78,7 @@ void initBackDrop(GameState *gs) {
 
 /*
 Initialises Surface Floor Terrain as sin wave to WORLD_W limit.
-*/        bool coll;
+*/ 
 void initFloor(GameState *gs) {
     gs->surface.surfaceLevel = malloc(WORLD_W * sizeof(int));
     for (int i = 0; i < WORLD_W; i++)
@@ -149,6 +149,7 @@ int main()
     /* All Config Initialisation */
     initWindow();
     initGameState(gs, stdscr);
+    WINDOW *gameBar  = initGameBar(gs); // init the gamebar
     initBackDrop(gs);
     initFloor(gs);
     initRocket(gs,(gs->maxX / 2) , ((gs->maxY / 2) - 10)); // this initialises the rocket at the x and y coordinates
@@ -208,8 +209,8 @@ int main()
         mvprintw(13, 35, "%f", gs->rocket.velocityX);
 
 
-
-
+        wnoutrefresh(stsc)
+        drawGameBar(gameBar, gs);
         refresh();
     }
     getch();
