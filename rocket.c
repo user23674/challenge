@@ -4,13 +4,11 @@
 #include <math.h>
 #include <stdbool.h>
 
-// #define M_PI 3.14159265
-// MPX (meters per pixel) now lives in rocket.h as the single source of truth.
 #define MOONG 1.62f
 #define GRAV (MOONG / MPX)
-#define MAX_THRUST (4.5f * GRAV)
+#define MAX_THRUST (2.0f * GRAV)
 #define FUEL_BURN_RATE 5.0f
-#define SAFE_LANDING_VY (2.0f / MPX)   // 2 m/s soft-landing threshold, in px/s
+#define SAFE_LANDING_VY (2.0f / MPX)
 
 
 
@@ -20,7 +18,7 @@ void initRocket(GameState *gameState, int starting_pos_x, int starting_pos_y) {
     gameState->rocket.rotation = 90;
     gameState->rocket.velocityX = 0;
     gameState->rocket.velocityY = 0;
-    gameState->rocket.mass = 7.5;
+    gameState->rocket.mass = 15;
     gameState->rocket.thrust = false;
     gameState->rocket.fuel = 100;
     gameState->rocket.thrust_time = 0.0f;

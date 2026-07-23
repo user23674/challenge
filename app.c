@@ -50,8 +50,6 @@ void draw_backdrop(GameState *gs) {
     for (int i = 0; i < N_STARS; i++) {
         int x = gs->backDrop.stars[i].x;
         int y = gs->backDrop.stars[i].y;
-        // Skip stars outside the visible playfield. Writing to the last
-        // column / bottom-right cell makes the terminal scroll -> flashing.
         if (x < 1 || x >= gs->maxX - 1 || y < 1 || y >= gs->maxY - 1) continue;
         mvprintw(y, x, "☆");
 
