@@ -44,8 +44,8 @@ void drawGameBar(GameState *gs) {
     mvprintw(y0, x0 + (w - (int)strlen(title)) / 2, "%s", title);
 
     // --- Data (px/s -> m/s) ---
-    float vx    = r->velocityX * 10.0f;
-    float vy    = r->velocityY * 10.0f;
+    float vx    = r->velocityX * MPX;
+    float vy    = r->velocityY * MPX;
     float speed = sqrtf(vx * vx + vy * vy);
 
     mvprintw(y0 + 1, x0 + 2, "Thrust : %s",         r->thrust ? "ON " : "OFF");

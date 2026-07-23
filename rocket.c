@@ -5,12 +5,12 @@
 #include <stdbool.h>
 
 // #define M_PI 3.14159265
-#define MPX 10.0f
+// MPX (meters per pixel) now lives in rocket.h as the single source of truth.
 #define MOONG 1.62f
 #define GRAV (MOONG / MPX)
 #define MAX_THRUST (4.5f * GRAV)
 #define FUEL_BURN_RATE 5.0f
-#define SAFE_LANDING_VY 0.20f
+#define SAFE_LANDING_VY (2.0f / MPX)   // 2 m/s soft-landing threshold, in px/s
 
 
 

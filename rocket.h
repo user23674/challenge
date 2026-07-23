@@ -2,6 +2,10 @@
 #define ROCKET_H
 #include <stdbool.h>
 
+// Meters represented by one pixel/unit. Single source of truth for the
+// world scale, used by physics (rocket.c) and telemetry (gamebar.c).
+#define MPX 5.0f
+
 typedef struct GameState GameState;
 // need to add thrust and fuel
 struct Rocket {
