@@ -151,11 +151,6 @@ void update_rocket(GameState *gs, float delta_time) {
     float throttle = engine_on ? 1.0f : 0.0f;
 
 
-
-
-    bool engine_on = r->thrust && r->fuel > 0.0f;
-    float throttle = engine_on ? 1.0f : 0.0f;
-
     float angle_rad = r->rotation * (float)(M_PI / 180.0);
     float thrust_acc = (throttle * MAX_THRUST);
 
