@@ -21,7 +21,7 @@ void initRocket(GameState *gameState, int starting_pos_x, int starting_pos_y) {
     gameState->rocket.rotation = 90;
     gameState->rocket.velocityX = 0;
     gameState->rocket.velocityY = 0;
-    gameState->rocket.mass = 10;
+    gameState->rocket.mass = 5;
     gameState->rocket.thrust = false;
     gameState->rocket.fuel = 100;
     gameState->rocket.thrust_time = 0.0f;
