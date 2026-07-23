@@ -53,28 +53,51 @@ void draw_rocket(GameState *gameState) {
 
     attron(COLOR_PAIR(1));
     mvaddch(gameState->rocket.y,gameState->rocket.x, '*' );
-    if (gameState->rocket.rotation <= 95 && gameState->rocket.rotation >= 85  ) {
-        mvaddch(gameState->rocket.y + 1,gameState->rocket.x+1, '\\');
-        mvaddch(gameState->rocket.y + 1,gameState->rocket.x-1, '/');
+    if (gameState->rocket.rotation < 135 && gameState->rocket.rotation > 45  ) {
+        mvaddch(gameState->rocket.y + 1,gameState->rocket.x, '^');
+        if (gameState->rocket.thrust_time != 0) {
+              attron(COLOR_PAIR(2));
+              mvaddch(gameState->rocket.y + 2, gameState->rocket.x , '*');
+              attron(COLOR_PAIR(2));
+        }
+  
     }
-    else if (gameState->rocket.rotation > 95 && gameState->rocket.rotation < 165  ) {   
-        mvaddch(gameState->rocket.y + 1,gameState->rocket.x, '\\');
-        mvaddch(gameState->rocket.y + 1,gameState->rocket.x+1, '\\');
+    else if (gameState->rocket.rotation >= 135 && gameState->rocket.rotation < 180  ) {   
+        mvaddch(gameState->rocket.y + 1,gameState->rocket.x+1, '^');
+        if (gameState->rocket.thrust_time != 0) {
+              attron(COLOR_PAIR(2));
+              mvaddch(gameState->rocket.y + 2, gameState->rocket.x +2 , '*');
+              attron(COLOR_PAIR(2));
+        }
     }
 
-    else if (gameState->rocket.rotation < 95 && gameState->rocket.rotation > 15  ) {   
-        mvaddch(gameState->rocket.y + 1,gameState->rocket.x, '/');
-        mvaddch(gameState->rocket.y + 1,gameState->rocket.x-1, '/');
+    else if (gameState->rocket.rotation == 45 ) {   
+        mvaddch(gameState->rocket.y + 1,gameState->rocket.x-1, '^');
+        if (gameState->rocket.thrust_time != 0) {
+              attron(COLOR_PAIR(2));
+              mvaddch(gameState->rocket.y + 2, gameState->rocket.x -2 , '*');
+              attron(COLOR_PAIR(2));
+        }
     }
 
 
-
-
-    else if (gameState->rocket.rotation >= 165 ) {
+    else if (gameState->rocket.rotation == 180 ) {
         mvaddch(gameState->rocket.y, gameState->rocket.x + 1, '<');
+        if (gameState->rocket.thrust_time != 0) {
+              attron(COLOR_PAIR(2));
+              mvaddch(gameState->rocket.y, gameState->rocket.x + 3, '*');
+              attron(COLOR_PAIR(2));
+        }
     }
-    else if (gameState->rocket.rotation <= 15) {
+
+    else if (gameState->rocket.rotation == 0) {
         mvaddch(gameState->rocket.y, gameState->rocket.x - 1, '>');
+        if (gameState->rocket.thrust_time != 0) {
+              attron(COLOR_PAIR(2));
+              mvaddch(gameState->rocket.y, gameState->rocket.x - 3, '*');
+              attron(COLOR_PAIR(2));
+        }
+    
     }
     attroff(COLOR_PAIR(1));
 }

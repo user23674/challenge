@@ -10,11 +10,11 @@ void controlRocket(int inp, GameState *gs) {
     bool *thrust = &(gs->rocket.thrust);
 
     if (inp == KEY_LEFT) {
-        *rotation += 5;
+        *rotation += 45;
         if (*rotation > 180) *rotation = 180;
     }
     if (inp == KEY_RIGHT) {
-        *rotation -= 5;
+        *rotation -= 45;
         if (*rotation < 0) *rotation = 0;
     }
     if (inp ==  KEY_UP) {

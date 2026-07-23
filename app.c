@@ -96,6 +96,7 @@ void initWindow() {
     start_color();
     use_default_colors(); 
     init_pair(1, COLOR_CYAN, -1);
+    init_pair(2, COLOR_RED, -1);
     timeout(1); // polling rate
     curs_set(0);
 	noecho();
@@ -133,7 +134,7 @@ int collideDetect(GameState *gs) {
             // mvprintw(25, 10, "Crashed");
             return 1;
         }
-        if (gs->rocket.velocityY >= 0.2 || gs->rocket.velocityX >= 0.2){
+        if (gs->rocket.velocityY >= 100 || gs->rocket.velocityX >= 100){
             return 1;
         }
 
@@ -215,7 +216,7 @@ int main()
             refresh();
             int coll = collideDetect(gs);
             if (coll == 1 || coll == 2) {
-                // Contact: snap the lander onto the surface so it rests on the ground
+
                 int sx = (int)gs->rocket.x;
                 gs->rocket.y = gs->maxY - gs->surface.surfaceLevel[sx] - 2;
                 gs->rocket.velocityX = 0;
@@ -228,13 +229,13 @@ int main()
                 drawGameBar(gs);
                 draw_rocket(gs);
 
-                if (coll == 2)
-                    mvprintw(gs->maxY / 2, (gs->maxX / 2) - 4, "LANDED!");
-                else
+                if (coll == 1)
                     mvprintw(gs->maxY / 2, (gs->maxX / 2) - 4, "CRASHED!");
+                else if (coll == 2)
+                    mvprintw(gs->maxY / 2, (gs->maxX / 2) - 4, "LANDED!");
 
                 refresh();
-                break;   // leave the loop; cleanup runs below
+                return 0;   // leave the loop; cleanup runs below
             }
             start = end;
         }
@@ -248,8 +249,6 @@ int main()
 
         refresh();
     }
-
-
     getch();
     endwin();
 }
