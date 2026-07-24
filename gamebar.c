@@ -15,7 +15,6 @@ void drawGameBar(GameState *gs) {
     if (x0 < 1) x0 = 1;
     int y0 = 0;
 
-    // --- Border ---
     for (int i = 0; i < w; i++) {
         mvaddch(y0, x0 + i,     ACS_HLINE);
         mvaddch(y0 + h - 1, x0 + i,  ACS_HLINE);
@@ -36,7 +35,7 @@ void drawGameBar(GameState *gs) {
     float vy = r->velocityY;
 
     mvprintw(y0 + 1, x0 + 2, "Thrust : %s", r->thrust ? "ON " : "OFF");
-    mvprintw(y0 + 2, x0 + 2, "Vx     : %+.3f", vx);
-    mvprintw(y0 + 3, x0 + 2, "Vy     : %+.3f", vy);   // + = descending
-    mvprintw(y0 + 4, x0 + 2, "Fuel   : %.1f",  r->fuel);
+    mvprintw(y0 + 2, x0 + 2, "Vx : %+.3f", vx);
+    mvprintw(y0 + 3, x0 + 2, "Vy : %+.3f", vy);
+    mvprintw(y0 + 4, x0 + 2, "Fuel : %.1f",  r->fuel);
 }

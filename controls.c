@@ -4,6 +4,9 @@
 #include <stdbool.h>
 
 
+/*
+Reads the input 
+*/
 void controlRocket(int inp, GameState *gs) {
 
     float *rotation = &(gs->rocket.rotation);
@@ -24,6 +27,7 @@ void controlRocket(int inp, GameState *gs) {
         gs->rocket.thrust_time  = 0.5f;
     }
     if (inp == KEY_DOWN) {
+        *thrust = false;
         gs->rocket.thrust_time = 0.0f;
     }
 }

@@ -11,8 +11,9 @@
 #define SAFE_LANDING_VY (2.0f / MPX)
 #define PI 3.14159265
 
-
-
+/*
+Initialises the rocket struct
+*/
 void initRocket(GameState *gameState, int starting_pos_x, int starting_pos_y) {
     gameState->rocket.x = (float)starting_pos_x;
     gameState->rocket.y = (float)starting_pos_y;
@@ -36,15 +37,6 @@ void initRocket(GameState *gameState, int starting_pos_x, int starting_pos_y) {
 //     float mass;
 //     float thrust_timer;
 // };
-
-
-
-
-
-/*
-  *  UP    >*   RIGHT    *<   LEFT   
-  ^
-*/
 
 /*
 Logic To Draw Rocket Sprite
@@ -103,8 +95,6 @@ void draw_rocket(GameState *gameState) {
     attroff(COLOR_PAIR(1));
 }
 
-
-
 /*
 Move functions to move the rocket by 1 unit
 */
@@ -155,10 +145,9 @@ void clamp(GameState *gs, float *x, float *y, int maxX, int maxY) {
   }
 }
 
-
-//  *                 *                     *              > * <
-//  \ \             / /                    / \                 
-
+/*
+Main physics function that works based on time elapsed to ensure consistency across platforms
+*/
 void update_rocket(GameState *gs, float delta_time) {
 
     
@@ -188,8 +177,8 @@ void update_rocket(GameState *gs, float delta_time) {
         if (r->fuel < 0.0f) r->fuel = 0.0f;
     }
 
-    if (r->velocityX > 0 )r->velocityX -= 0.001;
-    if (r->velocityX < 0 )r->velocityX += 0.001;
+    if (r->velocityX > 0 )r->velocityX -= 0.001 * delta_time;
+    if (r->velocityX < 0 )r->velocityX += 0.001 * delta_time;
 
 
     clamp(gs, &(gs->rocket.x), &(gs->rocket.y), gs->maxX, gs->maxY);

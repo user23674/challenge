@@ -77,7 +77,7 @@ void initBackDrop(GameState *gs) {
         gs->backDrop.stars[i].y = rand() % WORLD_H;
     }
     gs->backDrop.dots = malloc(N_DOTS * sizeof(Dots));
-    for (int i = 0; i < N_STARS; i++) {
+    for (int i = 0; i < N_DOTS; i++) {
         gs->backDrop.dots[i].x = rand() % WORLD_W;
         gs->backDrop.dots[i].y = rand() % WORLD_H;
     }
@@ -138,19 +138,23 @@ int collideDetect(GameState *gs) {
         int nextY = gs->surface.surfaceLevel[rocketX + 1];
         if ((nextY == rocketY && prevY > rocketY) || (nextY > rocketY && prevY == rocketY) || (rocketY < surfaceY) )  {  // Is the ground slanted or below?
             gs->landed = false;
+            gs->score = (int) ((gs->rocket.fuel + 10) * 1.2);
             return 1;
         }
         if (gs->rocket.velocityY >= 1 || gs->rocket.velocityY <= -1 || gs->rocket.velocityX >= 0.2 || gs->rocket.velocityX <= -0.2){
             gs->landed = false;
+            gs->score = (int) ((gs->rocket.fuel + 10) * 1.2);
             return 1;
         }
 
         if (gs->rocket.rotation != 90){
             gs->landed = false;
+            gs->score = (int) ((gs->rocket.fuel + 10) * 1.2);
             return 1;
         }
 
         gs->landed = true;
+        gs->score = (int) ((gs->rocket.fuel + 10) * 1.2);
         return 2;
         }
         else return 0; //mvprintw(25, 10, "Landed");
@@ -167,7 +171,7 @@ int collideDetect(GameState *gs) {
 int gameMenu(GameState *gs) {
 
 
-    char *items[] = {"WELCOME TO (FAKE) LUNAR LANDER", "New Game", "Leaderboard (WIP)", "Quit"};
+    char *items[] = {"WELCOME TO (FAKE) LUNAR LANDER", "New Game", "Leaderboard (WIP)", "Quit", "Score : "};
     if (gs->landed==true) items[0] = "SUCCESSFUL LANDING !"; // Alter the Main Game Board Message
     if (gs->landed==false) items[0] = "YOU CRASHED :(";
     
@@ -200,7 +204,8 @@ int gameMenu(GameState *gs) {
             if (i == choice) 
             {
                 wattron(menu, A_REVERSE);
-                mvwprintw(menu, y, x, "%s", items[i]);  
+                if (i == 4) mvwprintw(menu, y, x, "Score : %d", gs->score);  
+                else mvwprintw(menu, y, x, "%s", items[i]);  
                 wattroff(menu, A_REVERSE);
             } else {
                 mvwprintw(menu, y, x, "%s", items[i]); 
@@ -238,6 +243,7 @@ Main Game Entry Function
 int main()
 {	
     struct GameState *gs = malloc(sizeof *gs);
+    int ch, coll, menuVal; 
 
     // Timer for game loop
     struct timeval start;
@@ -250,51 +256,46 @@ int main()
     initFloor(gs);
     initRocket(gs,(gs->maxX / 2) , ((gs->maxY / 2) - 10)); // this initialises the rocket at the x and y coordinates
     
-    /*
-    Drawing Logic Will Go here
-    */
-
-    draw_floor(gs);
-    draw_rocket(gs);
-    draw_backdrop(gs);
-
     // Initialise the game loop timer
-
     gettimeofday(&start, NULL);
 
     while (1) {
-
-        int ch; 
 
         /* This is so the game adapts to the terminal changing mid game, might remove later?*/
         int maxX, maxY;
         getmaxyx(stdscr, maxY, maxX);
         gs->maxX = maxX;
         gs->maxY = maxY;
-        if (maxY < 20 || maxX < 20 || maxX > 200 || maxY > 200) {return 1;} // If the window gets too small then cut it
+        if (maxY < 20 || maxX < 20 || maxX > 200 || maxY > 200) {return 1;} // If the window gets too small then CRASH!
+       
+
+        /*
+        Redraw the Frame
+        */
         werase(stdscr);
-        
+
         draw_backdrop(gs);
         draw_floor(gs);
+        draw_rocket(gs);
         box(stdscr, 0, 0);
         drawGameBar(gs); 
-        draw_rocket(gs);
 
         ch = getch();
-        controlRocket(ch, gs);
-        gettimeofday(&end, NULL);
-        double elapsed =  (end.tv_sec - start.tv_sec) + (end.tv_usec - start.tv_usec) / 1000000.0;
+        controlRocket(ch, gs); // Updates rocket struct with user input
 
 
         // Physics Handling
+        gettimeofday(&end, NULL);
+        double elapsed =  (end.tv_sec - start.tv_sec) + (end.tv_usec - start.tv_usec) / 1000000.0;
         if (elapsed >= 0.016) {  // was 0.016
-            update_rocket(gs, elapsed);
-            draw_rocket(gs);
-            refresh();
-            int coll = collideDetect(gs);
-            if (coll == 1 || coll == 2) {
+
+
+            update_rocket(gs, elapsed); // Physics Function that alters the rocket struct calculations
+            coll = collideDetect(gs);
+            if (coll == 1 || coll == 2) { // Collision Detected?
 
                 int sx = (int)gs->rocket.x;
+
                 gs->rocket.y = gs->maxY - gs->surface.surfaceLevel[sx] - 2;
                 gs->rocket.velocityX = 0;
                 gs->rocket.velocityY = 0;
@@ -305,29 +306,25 @@ int main()
                 box(stdscr, 0, 0);
                 drawGameBar(gs);
                 draw_rocket(gs);
-
-                if (coll == 1)
-                    mvprintw(gs->maxY / 2, (gs->maxX / 2) - 4, "CRASHED!");
-                else if (coll == 2)
-                    mvprintw(gs->maxY / 2, (gs->maxX / 2) - 4, "LANDED!");
-
                 refresh();
                 sleep(1);
+
                 break; // crashed/landed so break out of main game loop
             }
-            start = end;
+            start = end; // sets the elapsed time
         }
-        draw_rocket(gs);
-        refresh();
-    } // end of the main game loop
-
-    if (gameMenu(gs) == 1) {
+    } 
+    
+    // end of the main game loop
+    menuVal = gameMenu(gs);
+    if (menuVal == 1) {
         endwin();
-    }
-    if (gameMenu(gs) == 0) {
+    } 
+    else if ( menuVal == 0) {
         endwin();
         main();
     }
-    endwin();
+    
+    // endwin();
 }
 
