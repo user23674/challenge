@@ -138,18 +138,18 @@ int collideDetect(GameState *gs) {
         int nextY = gs->surface.surfaceLevel[rocketX + 1];
         if ((nextY == rocketY && prevY > rocketY) || (nextY > rocketY && prevY == rocketY) || (rocketY < surfaceY) )  {  // Is the ground slanted or below?
             gs->landed = false;
-            gs->score = (int) ((gs->rocket.fuel + 10) * 1.2);
+            gs->score = 0;
             return 1;
         }
         if (gs->rocket.velocityY >= 1 || gs->rocket.velocityY <= -1 || gs->rocket.velocityX >= 0.2 || gs->rocket.velocityX <= -0.2){
             gs->landed = false;
-            gs->score = (int) ((gs->rocket.fuel + 10) * 1.2);
+            gs->score = 0;
             return 1;
         }
 
         if (gs->rocket.rotation != 90){
             gs->landed = false;
-            gs->score = (int) ((gs->rocket.fuel + 10) * 1.2);
+            gs->score = 0;
             return 1;
         }
 
@@ -161,6 +161,8 @@ int collideDetect(GameState *gs) {
 
     }
 
+
+
 /*
 (WIP)The Initial Game Menu that will allow for
 - Highscore table
@@ -170,7 +172,7 @@ int collideDetect(GameState *gs) {
 */
 int gameMenu(GameState *gs) {
 
-    char *items[] = {"WELCOME TO (FAKE) LUNAR LANDER", "New Game", "Leaderboard (WIP)", "Quit", "Score : "};
+    char *items[] = {"WELCOME TO (FAKE) LUNAR LANDER", "==============", "New Game", "Leaderboard (WIP)", "Quit", "Score : "};
     if (gs->landed==true) items[0] = "SUCCESSFUL LANDING !"; // Alter the Main Game Board Message
     if (gs->landed==false) items[0] = "YOU CRASHED :(";
 
@@ -178,7 +180,7 @@ int gameMenu(GameState *gs) {
     int box_h = gs->maxY / 2, box_w = gs->maxX / 2;
     int starty = (LINES - box_h) / 2;
     int startx = (COLS - box_w) / 2;
-    int choice = 1;
+    int choice = 2;
 
     cbreak();
     noecho();
@@ -201,8 +203,8 @@ int gameMenu(GameState *gs) {
 
             if (i == choice) wattron(menu, A_REVERSE);
 
-            if (i == 4) mvwprintw(menu, y, x, "Score : %d", gs->score);
-            else        mvwprintw(menu, y, x, "%s", items[i]);
+            if (i == 5) mvwprintw(menu, y, x, "Score : %d", gs->score);
+            else mvwprintw(menu, y, x, "%s", items[i]);
 
             if (i == choice) wattroff(menu, A_REVERSE);
 
@@ -216,11 +218,11 @@ int gameMenu(GameState *gs) {
         if (ch == '\n') break;
     }
 
-    if (choice == 1) { // New Game
+    if (choice == 2) { // New Game
         delwin(menu);
         return 0;
     }
-    if (choice == 3) { // Quit
+    if (choice == 4) { // Quit
         delwin(menu);
         return 1;
     }
@@ -307,14 +309,18 @@ int main()
     
     // end of the main game loop
     menuVal = gameMenu(gs);
+    free(gs->backDrop.stars);
+    free(gs->backDrop.dots);
+    free(gs->surface.surfaceLevel);
+    free(gs);
+    endwin();
+
     if (menuVal == 1) {
-        endwin();
+        return 0;
     } 
     else if ( menuVal == 0) {
-        endwin();
-        main();
+        return main(); // not recommended to do this but ah well (unlikely to cause issues unless you play thousands of games?)
     }
-    
-    // endwin();
-}
+    else {return 1;} // currently only exiting and new game are supported
+ }
 
