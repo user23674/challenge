@@ -9,6 +9,7 @@
 #define MAX_THRUST (3.5f * GRAV)
 #define FUEL_BURN_RATE 5.0f
 #define SAFE_LANDING_VY (2.0f / MPX)
+#define PI 3.14159265
 
 
 
@@ -171,7 +172,7 @@ void update_rocket(GameState *gs, float delta_time) {
     float throttle = engine_on ? 1.0f : 0.0f;
 
 
-    float angle_rad = r->rotation * (float)(M_PI / 180.0);
+    float angle_rad = r->rotation * (float)(PI / 180.0);
     float thrust_acc = (throttle * MAX_THRUST);
 
     float accel_x = thrust_acc * cosf(angle_rad);

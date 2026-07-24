@@ -18,6 +18,8 @@
 #include <stdlib.h>
 #include <stdbool.h>
 #include <sys/time.h>
+#include <string.h>
+#include <time.h>
 
 #define N_STARS 100
 #define N_DOTS 100
@@ -117,7 +119,7 @@ Initialises the game state struct
 void initGameState(GameState *gs, WINDOW *stdscr) {
     int maxX, maxY;
     getmaxyx(stdscr, maxY, maxX);
-    gs->score = NULL;
+    gs->score = 0;
     gs->landed = NULL;
     gs->maxX = maxX;
     gs->maxY = maxY;
@@ -128,24 +130,27 @@ Detects if a collision has taken place and if so calculates if its a successful 
 */
 int collideDetect(GameState *gs) {
     int rocketX = gs->rocket.x;
-    int rocketY = (gs->maxY - gs->rocket.y)  -  2;
+    int rocketY = (gs->maxY - gs->rocket.y)  -  1;
     int surfaceY = gs->surface.surfaceLevel[rocketX];
  
     if (rocketY <= surfaceY) { // touched land
         int prevY = gs->surface.surfaceLevel[rocketX - 1];
         int nextY = gs->surface.surfaceLevel[rocketX + 1];
         if ((nextY == rocketY && prevY > rocketY) || (nextY > rocketY && prevY == rocketY) || (rocketY < surfaceY) )  {  // Is the ground slanted or below?
-            // mvprintw(25, 10, "Crashed");
+            gs->landed = false;
             return 1;
         }
         if (gs->rocket.velocityY >= 1 || gs->rocket.velocityY <= -1 || gs->rocket.velocityX >= 0.2 || gs->rocket.velocityX <= -0.2){
+            gs->landed = false;
             return 1;
         }
 
         if (gs->rocket.rotation != 90){
+            gs->landed = false;
             return 1;
         }
 
+        gs->landed = true;
         return 2;
         }
         else return 0; //mvprintw(25, 10, "Landed");
@@ -159,31 +164,70 @@ int collideDetect(GameState *gs) {
 - Quit or retry
 - see if you landed or not
 */
-void gameMenu(GameState *gs) {
+int gameMenu(GameState *gs) {
 
+
+    char *items[] = {"WELCOME TO (FAKE) LUNAR LANDER", "New Game", "Leaderboard (WIP)", "Quit"};
+    if (gs->landed==true) items[0] = "SUCCESSFUL LANDING !"; // Alter the Main Game Board Message
+    if (gs->landed==false) items[0] = "YOU CRASHED :(";
+    
+    int size = sizeof(items) / sizeof(items[0]);
     int box_h = gs->maxY / 2, box_w = gs->maxX / 2;
-
-    // center: (screen - box) / 2
     int starty = (LINES - box_h) / 2;
     int startx = (COLS - box_w) / 2;
+    int choice = 1;
+
+    cbreak();
+    noecho();
+    keypad(stdscr, TRUE);
 
     // create a subwindow and draw a border around it
     WINDOW *menu = newwin(box_h, box_w, starty, startx);
-    box(menu, 0, 0);         // 0,0 = default vertical/horizontal chars
+    keypad(menu, TRUE);
+    box(menu, 0, 0);       
+    int menu_top = (box_h - size) / 2;
 
-    refresh();              // refresh stdscr first
-    wrefresh(menu);          // then the window
-
+    int ch;
     while (1) {
+        werase(menu);
         box(menu, 0, 0); 
-        refresh();
-        wrefresh(menu);
-        getch();   
-    }
-                 // wait for a keypress
+        
+        for ( int i = 0; i < size; i++) {
+            int len = strlen(items[i]);
+            int x = (box_w - len) / 2;
+            int y = menu_top + i;
 
-    delwin(menu);
-    endwin();               // restore terminal
+            if (i == choice) 
+            {
+                wattron(menu, A_REVERSE);
+                mvwprintw(menu, y, x, "%s", items[i]);  
+                wattroff(menu, A_REVERSE);
+            } else {
+                mvwprintw(menu, y, x, "%s", items[i]); 
+            }
+            wrefresh(menu);
+        }
+        wrefresh(menu);
+        
+        ch = wgetch(menu);
+        if (ch == KEY_UP) choice = (choice > 0) ? choice - 1 : 0;
+        if (ch == KEY_DOWN) choice = (choice < size - 1) ? choice + 1 : size - 1;
+        if (ch == '\n') break;
+    }
+
+    if (choice == 1) { // New Game
+        delwin(menu);
+        return 0;
+    }
+    if (choice == 3) { // Quit
+        delwin(menu);
+        return 1;
+    }
+
+
+
+
+    
 }
 
 
@@ -220,8 +264,6 @@ int main()
 
     while (1) {
 
-
-
         int ch; 
 
         /* This is so the game adapts to the terminal changing mid game, might remove later?*/
@@ -230,23 +272,13 @@ int main()
         gs->maxX = maxX;
         gs->maxY = maxY;
         if (maxY < 20 || maxX < 20 || maxX > 200 || maxY > 200) {return 1;} // If the window gets too small then cut it
-
-
-
-
-
         werase(stdscr);
-        //mvprintw(10, 10, "☆");
         
         draw_backdrop(gs);
         draw_floor(gs);
         box(stdscr, 0, 0);
         drawGameBar(gs); 
         draw_rocket(gs);
-        
-
-
-        
 
         ch = getch();
         controlRocket(ch, gs);
@@ -280,18 +312,22 @@ int main()
                     mvprintw(gs->maxY / 2, (gs->maxX / 2) - 4, "LANDED!");
 
                 refresh();
+                sleep(1);
                 break; // crashed/landed so break out of main game loop
             }
             start = end;
         }
+        draw_rocket(gs);
         refresh();
     } // end of the main game loop
 
-
-
-    timeout(-1);   
-    gameMenu(gs);
-    getch();
+    if (gameMenu(gs) == 1) {
+        endwin();
+    }
+    if (gameMenu(gs) == 0) {
+        endwin();
+        main();
+    }
     endwin();
 }
 

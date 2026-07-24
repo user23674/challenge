@@ -5,7 +5,7 @@
 
 // Panel size in character cells. Content lives on rows 1..(GAMEBAR_H-2).
 #define GAMEBAR_W 30
-#define GAMEBAR_H 8
+#define GAMEBAR_H 6
 
 void drawGameBar(GameState *gs);
 
