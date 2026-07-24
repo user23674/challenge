@@ -43,15 +43,15 @@ void drawGameBar(GameState *gs) {
     const char *title = " TELEMETRY ";
     mvprintw(y0, x0 + (w - (int)strlen(title)) / 2, "%s", title);
 
-    // --- Data (px/s -> m/s) ---
-    float vx    = r->velocityX * MPX;
-    float vy    = r->velocityY * MPX;
+    // --- Data (raw rocket velocity, px/s) ---
+    float vx    = r->velocityX;
+    float vy    = r->velocityY;
     float speed = sqrtf(vx * vx + vy * vy);
 
-    mvprintw(y0 + 1, x0 + 2, "Thrust : %s",         r->thrust ? "ON " : "OFF");
-    mvprintw(y0 + 2, x0 + 2, "Vx     : %+6.1f m/s", vx);
-    mvprintw(y0 + 3, x0 + 2, "Vy     : %+6.1f m/s", vy);   // + = descending
-    mvprintw(y0 + 4, x0 + 2, "Speed  : %6.1f m/s",  speed);
-    mvprintw(y0 + 5, x0 + 2, "Fuel   : %6.1f",      r->fuel);
+    mvprintw(y0 + 1, x0 + 2, "Thrust : %s",     r->thrust ? "ON " : "OFF");
+    mvprintw(y0 + 2, x0 + 2, "Vx     : %+8.3f", vx);
+    mvprintw(y0 + 3, x0 + 2, "Vy     : %+8.3f", vy);   // + = descending
+    mvprintw(y0 + 4, x0 + 2, "Speed  : %8.3f",  speed);
+    mvprintw(y0 + 5, x0 + 2, "Fuel   : %6.1f",  r->fuel);
     // Row 6 free for future data (altitude, rotation, score, status...)
 }

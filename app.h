@@ -6,9 +6,13 @@
 struct Stars {int x, y;};
 typedef struct Stars Stars;
 
+struct Dots {int x, y;};
+typedef struct Dots Dots;
+
 
 struct BackDrop {
     Stars *stars;
+    Dots *dots;
 };
 typedef struct BackDrop BackDrop;
 
@@ -22,6 +26,7 @@ struct GameState {
     BackDrop backDrop;
     Surface surface;
     int score;
+    bool landed; // keeps track of if the player just landed successfully
     int maxX;
     int maxY;
 };

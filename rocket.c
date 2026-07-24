@@ -4,9 +4,9 @@
 #include <math.h>
 #include <stdbool.h>
 
-#define MOONG 1.62f
+#define MOONG 0.1f // was 1.62
 #define GRAV (MOONG / MPX)
-#define MAX_THRUST (2.0f * GRAV)
+#define MAX_THRUST (3.5f * GRAV)
 #define FUEL_BURN_RATE 5.0f
 #define SAFE_LANDING_VY (2.0f / MPX)
 
@@ -16,9 +16,9 @@ void initRocket(GameState *gameState, int starting_pos_x, int starting_pos_y) {
     gameState->rocket.x = (float)starting_pos_x;
     gameState->rocket.y = (float)starting_pos_y;
     gameState->rocket.rotation = 90;
-    gameState->rocket.velocityX = 0;
+    gameState->rocket.velocityX = 1.2; // to start a bit of a challenge
     gameState->rocket.velocityY = 0;
-    gameState->rocket.mass = 15;
+    gameState->rocket.mass = 50;
     gameState->rocket.thrust = false;
     gameState->rocket.fuel = 100;
     gameState->rocket.thrust_time = 0.0f;
@@ -186,6 +186,9 @@ void update_rocket(GameState *gs, float delta_time) {
         r->fuel -= FUEL_BURN_RATE * delta_time;
         if (r->fuel < 0.0f) r->fuel = 0.0f;
     }
+
+    if (r->velocityX > 0 )r->velocityX -= 0.001;
+    if (r->velocityX < 0 )r->velocityX += 0.001;
 
 
     clamp(gs, &(gs->rocket.x), &(gs->rocket.y), gs->maxX, gs->maxY);

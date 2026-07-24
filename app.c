@@ -19,7 +19,8 @@
 #include <stdbool.h>
 #include <sys/time.h>
 
-#define N_STARS 150
+#define N_STARS 100
+#define N_DOTS 100
 #define WORLD_W 200
 #define WORLD_H 200
 
@@ -52,7 +53,12 @@ void draw_backdrop(GameState *gs) {
         int y = gs->backDrop.stars[i].y;
         if (x < 1 || x >= gs->maxX - 1 || y < 1 || y >= gs->maxY - 1) continue;
         mvprintw(y, x, "☆");
-
+    }
+    for (int i = 0; i < N_DOTS; i++) {
+        int x = gs->backDrop.dots[i].x;
+        int y = gs->backDrop.dots[i].y;
+        if (x < 1 || x >= gs->maxX - 1 || y < 1 || y >= gs->maxY - 1) continue;
+        mvprintw(y, x, ".");
     }
     
 }
@@ -68,14 +74,13 @@ void initBackDrop(GameState *gs) {
         gs->backDrop.stars[i].x = rand() % WORLD_W;
         gs->backDrop.stars[i].y = rand() % WORLD_H;
     }
+    gs->backDrop.dots = malloc(N_DOTS * sizeof(Dots));
+    for (int i = 0; i < N_STARS; i++) {
+        gs->backDrop.dots[i].x = rand() % WORLD_W;
+        gs->backDrop.dots[i].y = rand() % WORLD_H;
+    }
 }
 
-// void initFloor(GameState *gs) {
-//     gs->surface.surfaceLevel = malloc(WORLD_W * sizeof(int));
-//     for (int i = 0; i < WORLD_W; i++){
-//         gs->surface.surfaceLevel[i] = 5;
-//     }
-// }
 
 /*
 Initialises Surface Floor Terrain as sin wave to WORLD_W limit.
@@ -112,21 +117,20 @@ Initialises the game state struct
 void initGameState(GameState *gs, WINDOW *stdscr) {
     int maxX, maxY;
     getmaxyx(stdscr, maxY, maxX);
-    gs->score = 0;
+    gs->score = NULL;
+    gs->landed = NULL;
     gs->maxX = maxX;
     gs->maxY = maxY;
 }
 
 /*
-(WIP)Detects if a collision has taken place and if so calculates if its a successful landing
+Detects if a collision has taken place and if so calculates if its a successful landing
 */
 int collideDetect(GameState *gs) {
     int rocketX = gs->rocket.x;
     int rocketY = (gs->maxY - gs->rocket.y)  -  2;
     int surfaceY = gs->surface.surfaceLevel[rocketX];
-    mvprintw(10, 10, "%d", surfaceY);
-    mvprintw(12, 10, "%d", rocketY);
-
+ 
     if (rocketY <= surfaceY) { // touched land
         int prevY = gs->surface.surfaceLevel[rocketX - 1];
         int nextY = gs->surface.surfaceLevel[rocketX + 1];
@@ -134,11 +138,11 @@ int collideDetect(GameState *gs) {
             // mvprintw(25, 10, "Crashed");
             return 1;
         }
-        if (gs->rocket.velocityY >= 100 || gs->rocket.velocityX >= 100){
+        if (gs->rocket.velocityY >= 1 || gs->rocket.velocityY <= -1 || gs->rocket.velocityX >= 0.2 || gs->rocket.velocityX <= -0.2){
             return 1;
         }
 
-        if (gs->rocket.rotation >= 95 || gs->rocket.rotation <= 85){
+        if (gs->rocket.rotation != 90){
             return 1;
         }
 
@@ -148,12 +152,50 @@ int collideDetect(GameState *gs) {
 
     }
 
+/*
+(WIP)The Initial Game Menu that will allow for
+- Highscore table
+- Score of previous run
+- Quit or retry
+- see if you landed or not
+*/
+void gameMenu(GameState *gs) {
+
+    int box_h = gs->maxY / 2, box_w = gs->maxX / 2;
+
+    // center: (screen - box) / 2
+    int starty = (LINES - box_h) / 2;
+    int startx = (COLS - box_w) / 2;
+
+    // create a subwindow and draw a border around it
+    WINDOW *menu = newwin(box_h, box_w, starty, startx);
+    box(menu, 0, 0);         // 0,0 = default vertical/horizontal chars
+
+    refresh();              // refresh stdscr first
+    wrefresh(menu);          // then the window
+
+    while (1) {
+        box(menu, 0, 0); 
+        refresh();
+        wrefresh(menu);
+        getch();   
+    }
+                 // wait for a keypress
+
+    delwin(menu);
+    endwin();               // restore terminal
+}
+
+
+
+/*
+Main Game Entry Function
+*/
 int main()
 {	
     struct GameState *gs = malloc(sizeof *gs);
 
     // Timer for game loop
-
     struct timeval start;
     struct timeval end;
 
@@ -210,7 +252,10 @@ int main()
         controlRocket(ch, gs);
         gettimeofday(&end, NULL);
         double elapsed =  (end.tv_sec - start.tv_sec) + (end.tv_usec - start.tv_usec) / 1000000.0;
-        if (elapsed >= 0.000016) {  // was 0.016
+
+
+        // Physics Handling
+        if (elapsed >= 0.016) {  // was 0.016
             update_rocket(gs, elapsed);
             draw_rocket(gs);
             refresh();
@@ -235,20 +280,18 @@ int main()
                     mvprintw(gs->maxY / 2, (gs->maxX / 2) - 4, "LANDED!");
 
                 refresh();
-                return 0;   // leave the loop; cleanup runs below
+                break; // crashed/landed so break out of main game loop
             }
             start = end;
         }
-
-        
-        // mvprintw(10, 35, "%f", gs->rocket.rotation);
-        // mvprintw(11, 35, "%b", gs->rocket.thrust);
-        // mvprintw(12, 35, "%f", gs->rocket.velocityY);
-        // mvprintw(13, 35, "%f", gs->rocket.velocityX);
-
-
         refresh();
-    }
+    } // end of the main game loop
+
+
+
+    timeout(-1);   
+    gameMenu(gs);
     getch();
     endwin();
 }
+

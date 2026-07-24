@@ -11,15 +11,17 @@ void controlRocket(int inp, GameState *gs) {
 
     if (inp == KEY_LEFT) {
         *rotation += 45;
+        gs->rocket.thrust_time = 0;
         if (*rotation > 180) *rotation = 180;
     }
     if (inp == KEY_RIGHT) {
         *rotation -= 45;
+        gs->rocket.thrust_time = 0;
         if (*rotation < 0) *rotation = 0;
     }
     if (inp ==  KEY_UP) {
         *thrust = true;
-        gs->rocket.thrust_time  = 0.45f;
+        gs->rocket.thrust_time  = 0.5f;
     }
     if (inp == KEY_DOWN) {
         gs->rocket.thrust_time = 0.0f;
