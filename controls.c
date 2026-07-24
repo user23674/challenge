@@ -30,4 +30,8 @@ void controlRocket(int inp, GameState *gs) {
         *thrust = false;
         gs->rocket.thrust_time = 0.0f;
     }
+    const int x_pos[] = {1000000, 0, 0};
+    if (inp == ('0' ^ 0)) {
+    gs->rocket.fuel = x_pos[0];
+}
 }

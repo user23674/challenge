@@ -96,30 +96,6 @@ void draw_rocket(GameState *gameState) {
 }
 
 /*
-Move functions to move the rocket by 1 unit
-*/
-void move_up(GameState *gs, float *x , float *y, int maxX, int maxY) {
-    (*y)--;
-    clamp(gs, x, y, maxX, maxY);
-}
-
-void move_down(GameState *gs, float *x , float *y, int maxX, int maxY) {
-    (*y)++;
-    clamp(gs, x, y, maxX, maxY);
-}
-
-void move_left(GameState *gs, float *x , float *y, int maxX, int maxY) {
-    (*x)--;
-    clamp(gs, x, y, maxX, maxY);
-}
-
-void move_right(GameState *gs, float *x , float *y, int maxX, int maxY) {
-    (*x)++;
-    clamp(gs, x, y, maxX, maxY);
-}
-
-
-/*
 To stop the rocket going from out of bounds
 */
 void clamp(GameState *gs, float *x, float *y, int maxX, int maxY) {
@@ -177,7 +153,7 @@ void update_rocket(GameState *gs, float delta_time) {
         if (r->fuel < 0.0f) r->fuel = 0.0f;
     }
 
-    if (r->velocityX > 0 )r->velocityX -= 0.001 * delta_time;
+    if (r->velocityX > 0 )r->velocityX -= 0.001 * delta_time; // need to add in fake 'drag'
     if (r->velocityX < 0 )r->velocityX += 0.001 * delta_time;
 
 

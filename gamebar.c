@@ -5,6 +5,10 @@
 #include <string.h>
 
 
+/*
+Draws the Stars Bar At Top Of Screen
+*/
+
 void drawGameBar(GameState *gs) {
     Rocket *r = &gs->rocket;
 
@@ -20,8 +24,8 @@ void drawGameBar(GameState *gs) {
         mvaddch(y0 + h - 1, x0 + i,  ACS_HLINE);
     }
     for (int j = 0; j < h; j++) {
-        mvaddch(y0 + j,     x0,         ACS_VLINE);
-        mvaddch(y0 + j,     x0 + w - 1, ACS_VLINE);
+        mvaddch(y0 + j, x0,         ACS_VLINE);
+        mvaddch(y0 + j,  x0 + w - 1, ACS_VLINE);
     }
     mvaddch(y0, x0,  ACS_ULCORNER);
     mvaddch(y0,  x0 + w - 1, ACS_URCORNER);

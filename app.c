@@ -20,9 +20,10 @@
 #include <sys/time.h>
 #include <string.h>
 #include <time.h>
+#include <unistd.h>
 
-#define N_STARS 100
-#define N_DOTS 100
+#define N_STARS 200
+#define N_DOTS 200
 #define WORLD_W 200
 #define WORLD_H 200
 
@@ -226,6 +227,7 @@ int gameMenu(GameState *gs) {
         delwin(menu);
         return 1;
     }
+    else return 1;
 }
 
 
