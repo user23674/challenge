@@ -170,11 +170,10 @@ int collideDetect(GameState *gs) {
 */
 int gameMenu(GameState *gs) {
 
-
     char *items[] = {"WELCOME TO (FAKE) LUNAR LANDER", "New Game", "Leaderboard (WIP)", "Quit", "Score : "};
     if (gs->landed==true) items[0] = "SUCCESSFUL LANDING !"; // Alter the Main Game Board Message
     if (gs->landed==false) items[0] = "YOU CRASHED :(";
-    
+
     int size = sizeof(items) / sizeof(items[0]);
     int box_h = gs->maxY / 2, box_w = gs->maxX / 2;
     int starty = (LINES - box_h) / 2;
@@ -185,35 +184,32 @@ int gameMenu(GameState *gs) {
     noecho();
     keypad(stdscr, TRUE);
 
-    // create a subwindow and draw a border around it
     WINDOW *menu = newwin(box_h, box_w, starty, startx);
     keypad(menu, TRUE);
-    box(menu, 0, 0);       
+    box(menu, 0, 0);
     int menu_top = (box_h - size) / 2;
 
     int ch;
     while (1) {
         werase(menu);
-        box(menu, 0, 0); 
-        
+        box(menu, 0, 0);
+
         for ( int i = 0; i < size; i++) {
             int len = strlen(items[i]);
             int x = (box_w - len) / 2;
             int y = menu_top + i;
 
-            if (i == choice) 
-            {
-                wattron(menu, A_REVERSE);
-                if (i == 4) mvwprintw(menu, y, x, "Score : %d", gs->score);  
-                else mvwprintw(menu, y, x, "%s", items[i]);  
-                wattroff(menu, A_REVERSE);
-            } else {
-                mvwprintw(menu, y, x, "%s", items[i]); 
-            }
+            if (i == choice) wattron(menu, A_REVERSE);
+
+            if (i == 4) mvwprintw(menu, y, x, "Score : %d", gs->score);
+            else        mvwprintw(menu, y, x, "%s", items[i]);
+
+            if (i == choice) wattroff(menu, A_REVERSE);
+
             wrefresh(menu);
         }
         wrefresh(menu);
-        
+
         ch = wgetch(menu);
         if (ch == KEY_UP) choice = (choice > 0) ? choice - 1 : 0;
         if (ch == KEY_DOWN) choice = (choice < size - 1) ? choice + 1 : size - 1;
@@ -228,13 +224,7 @@ int gameMenu(GameState *gs) {
         delwin(menu);
         return 1;
     }
-
-
-
-
-    
 }
-
 
 
 /*
